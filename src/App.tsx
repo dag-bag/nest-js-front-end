@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { io } from 'socket.io-client';
-import { Send, MessageSquare } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import React, { useEffect, useState, useRef } from "react";
+import { io } from "socket.io-client";
+import { Send, MessageSquare } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 
-const socket = io('http://localhost:85');
+const socket = io("https://slimy-julietta-virender-cf26f00b.koyeb.app");
 
 interface Message {
   name: string;
@@ -18,36 +18,36 @@ interface UserTyping {
 
 function App() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState('');
-  const [username, setUsername] = useState('');
+  const [newMessage, setNewMessage] = useState("");
+  const [username, setUsername] = useState("");
   const [isJoined, setIsJoined] = useState(false);
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
-    socket.on('created', (message: Message) => {
-      setMessages(prev => [...prev, message]);
+    socket.on("created", (message: Message) => {
+      setMessages((prev) => [...prev, message]);
       scrollToBottom();
     });
 
-    socket.on('userTyping', ({ name, isTyping }: UserTyping) => {
-      setTypingUsers(prev => 
-        isTyping 
+    socket.on("userTyping", ({ name, isTyping }: UserTyping) => {
+      setTypingUsers((prev) =>
+        isTyping
           ? [...new Set([...prev, name])]
-          : prev.filter(user => user !== name)
+          : prev.filter((user) => user !== name)
       );
     });
 
     return () => {
-      socket.off('created');
-      socket.off('userTyping');
+      socket.off("created");
+      socket.off("userTyping");
     };
   }, []);
 
   useEffect(() => {
     if (messages.length === 0) {
-      socket.emit('findAllMessages', {}, (response: Message[]) => {
+      socket.emit("findAllMessages", {}, (response: Message[]) => {
         setMessages(response);
         scrollToBottom();
       });
@@ -55,13 +55,13 @@ function App() {
   }, []);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   const handleJoin = (e: React.FormEvent) => {
     e.preventDefault();
     if (username.trim()) {
-      socket.emit('join', { name: username });
+      socket.emit("join", { name: username });
       setIsJoined(true);
     }
   };
@@ -74,23 +74,23 @@ function App() {
         message: newMessage.trim(),
         timestamp: new Date().toISOString(),
       };
-      socket.emit('createMessage', messageData);
-      setNewMessage('');
-      socket.emit('typing', { isTyping: false });
+      socket.emit("createMessage", messageData);
+      setNewMessage("");
+      socket.emit("typing", { isTyping: false });
     }
   };
 
   const handleTyping = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewMessage(e.target.value);
-    
+
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
 
-    socket.emit('typing', { isTyping: true });
-    
+    socket.emit("typing", { isTyping: true });
+
     typingTimeoutRef.current = setTimeout(() => {
-      socket.emit('typing', { isTyping: false });
+      socket.emit("typing", { isTyping: false });
     }, 1000);
   };
 
@@ -139,20 +139,22 @@ function App() {
               <div
                 key={index}
                 className={`flex ${
-                  msg.name === username ? 'justify-end' : 'justify-start'
+                  msg.name === username ? "justify-end" : "justify-start"
                 }`}
               >
                 <div
                   className={`max-w-[70%] rounded-lg p-3 ${
                     msg.name === username
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-gray-100 text-gray-800'
+                      ? "bg-indigo-600 text-white"
+                      : "bg-gray-100 text-gray-800"
                   }`}
                 >
                   <p className="text-sm font-semibold">{msg.name}</p>
                   <p className="mt-1">{msg.message}</p>
                   <p className="text-xs mt-1 opacity-75">
-                    {formatDistanceToNow(new Date(msg.timestamp), { addSuffix: true })}
+                    {formatDistanceToNow(new Date(msg.timestamp), {
+                      addSuffix: true,
+                    })}
                   </p>
                 </div>
               </div>
@@ -163,7 +165,8 @@ function App() {
 
         {typingUsers.length > 0 && (
           <div className="text-sm text-gray-600 mb-2">
-            {typingUsers.join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing...
+            {typingUsers.join(", ")} {typingUsers.length === 1 ? "is" : "are"}{" "}
+            typing...
           </div>
         )}
 
