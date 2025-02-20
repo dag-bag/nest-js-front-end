@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 import { Send, MessageSquare } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
-const socket = io("https://slimy-julietta-virender-cf26f00b.koyeb.app/chat");
+const socket = io("https://slimy-julietta-virender-cf26f00b.koyeb.app");
 
 interface Message {
   name: string;
